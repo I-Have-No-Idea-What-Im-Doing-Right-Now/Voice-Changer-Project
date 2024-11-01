@@ -1,25 +1,43 @@
-#Sources:
-#https://pypi.org/project/pvrecorder/
-#https://github.com/jiaaro/pydub
-import pydub as pd
-from pvrecorder import PvRecorder
-from time import time
+import pyaudio
+import pydub
 import wave
-import struct
 
-SAVE_PATH = "sigma.wav"
 
-recorder = PvRecorder(device_index=-1, frame_length=512)
-recorder.start()
+class Recorder(pyaudio.PyAudio):
+    def __init__(self):
+        super().__init__()
 
-sTime = time()
-frames=[]
-while time() < sTime + 1:
-    frame = recorder.read()
-    frames.append(frame)
+    def record(self, seconds, filename) -> wave.Wave_write:
+        """Record a wav file for certain number of seconds. Save with the file name of filename"""
 
-recorder.stop()
+        stream = self.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
 
-with wave.open(SAVE_PATH, 'w') as f:
-        f.setparams((1, 2, 16000, 512, "NONE", "NONE"))
-        f.writeframes(struct.pack("h" * len(frames), *frames))
+        frames = []
+
+        for i in range(0, int(44100 / 1024 * seconds)):
+            data = stream.read(1024)
+            frames.append(data)
+
+        # Stop Recording
+        stream.stop_stream()
+        stream.close()
+        self.terminate()
+
+        wave_file = wave.open(filename, 'wb')
+        wave_file.setnchannels(1)
+        wave_file.setsampwidth(self.get_sample_size(pyaudio.paInt16))
+        wave_file.setframerate(44100)
+        wave_file.writeframes(b''.join(frames))
+        wave_file.close()
+
+        return wave_file
+
+
+def main() -> None:
+    listener = Recorder()
+
+    listener.record(10, "sigma.wav")
+
+
+if __name__ == "__main__":
+    main()
