@@ -9,7 +9,5 @@ def recAndPlayback():
     myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     print(myrecording)
-    sd.play(data=myrecording, samplerate=fs)
-    sd.wait()
-    sd.stop()
-                               
+    sd.play(myrecording, samplerate=fs, blocking=True)
+           
