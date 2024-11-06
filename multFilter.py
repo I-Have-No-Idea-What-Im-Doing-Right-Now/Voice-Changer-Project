@@ -1,5 +1,8 @@
 import numpy as np
 from scipy.io.wavfile import write
 
-def applyAndSave(file: np.ndarray):
-    write('modified.wav', 44100, np.multiply(file, [500000]))
+def apply(file: np.ndarray, amm):
+    return np.multiply(file, [amm])
+
+def applyAndSave(file: np.ndarray, amm):
+    write('modified.wav', 44100, apply(file, amm))
