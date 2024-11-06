@@ -1,3 +1,9 @@
 #from gui import *
 from recorder import *
-recAndPlayback()
+from multFilter import *
+
+
+sd.default.device = 0
+
+rec = recAndPlayback()
+applyAndSave(rec)
